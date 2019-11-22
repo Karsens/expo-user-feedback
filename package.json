@@ -1,0 +1,18 @@
+{
+  "name": "expo-user-feedback",
+  "version": "1.0.3",
+  "description": "Expo User-feedback alert flow and UI",
+  "main": "index.js",
+  "repository": "git@github.com:EAT-CODE-KITE-REPEAT/expo-user-feedback.git",
+  "author": "<wijnand@leckr.io>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "expo-mail-composer": "^7.0.0",
+    "expo-store-review": "^1.0.0"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  }
+}
