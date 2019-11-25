@@ -9,7 +9,8 @@
   "private": false,
   "dependencies": {
     "expo-mail-composer": "^7.0.0",
-    "expo-store-review": "^1.0.0"
+    "expo-store-review": "^1.0.0",
+    "i18n-js": "^3.5.0"
   },
   "peerDependencies": {
     "react": "*",

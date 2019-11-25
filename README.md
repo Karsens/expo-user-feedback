@@ -47,5 +47,5 @@ or simply use the default:
 ```jsx
 import { ReviewBox } from "expo-user-feedback";
 
-<DefaultReviewBox Config={YOUR_CONFIG} />;
+<DefaultReviewBox language={LANGUAGE_STRING} Config={YOUR_CONFIG} />;
 ```

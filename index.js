@@ -4,39 +4,82 @@ import { Text, View, Alert, Linking, Platform } from "react-native";
 import * as MailComposer from "expo-mail-composer";
 import * as StoreReview from "expo-store-review";
 
+import i18n from "i18n-js";
+const en = {
+  reviewOrMailTitle: "Do you enjoy {{name}}?",
+  yes: "Yes",
+  no: "No",
+  giveFeedback: "Give feedback",
+  giveFeedbackText:
+    "Would you like to let us know what you think about {{name}}?",
+
+  box: {
+    title: "You're up for review! 😁",
+    likeText: "Do you like the app?",
+    otherTimeAlert: "Okay, another time maybe.",
+    likeButton: "Review us",
+    improveText: "Can we improve something?",
+    improveButton: "Give feedback"
+  }
+};
+const nl = {
+  reviewOrMailTitle: "Vind je {{name}} leuk?",
+  yes: "Ja",
+  no: "Nee",
+  giveFeedback: "Geef feedback",
+  giveFeedbackText: "Wil je ons laten weten wat je vind van {{name}}?",
+
+  box: {
+    title: "Je mag ons reviewen!",
+    likeText: "Vind je onze app leuk?",
+    otherTimeAlert: "Oke, een andere keer misschien",
+    likeButton: "Review ons",
+    improveText: "Kunnen we wat verbeteren?",
+    improveButton: "Geef feedback"
+  }
+};
+
+i18n.fallbacks = true;
+i18n.translations = { en, nl };
+
 import Button from "./pure.button";
 
-const storeReview = () => {
-  StoreReview.requestReview();
+const storeReview = async () => {
+  console.log("Request review");
+  const result = await StoreReview.requestReview();
+
+  console.log("result", result);
 };
 
-const askMailFeedback = ({ name, email }) => {
-  Alert.alert(
-    "Give feedback",
-    `Would you like to let us know what you think about ${name}?`,
-    [
-      {
-        text: "Yes",
-        onPress: () => {
-          MailComposer.composeAsync({
-            subject: "Feedback",
-            recipients: [email]
-          });
-        }
-      },
-
-      {
-        text: "No"
+const askMailFeedback = ({ name, email }, language: string) => {
+  Alert.alert(i18n.t("giveFeedback"), i18n.t("giveFeedbackText", { name }), [
+    {
+      text: i18n.t("yes"),
+      onPress: () => {
+        MailComposer.composeAsync({
+          subject: "Feedback",
+          recipients: [email]
+        });
       }
-    ]
-  );
+    },
+
+    {
+      text: i18n.t("no")
+    }
+  ]);
 };
 
-export const reviewOrMail = Config =>
-  Alert.alert(`Do you enjoy ${Config.name}?`, null, [
-    { text: "Yes", onPress: storeReview },
-    { text: "No", onPress: Config.email ? () => askMailFeedback(Config) : null }
+export const reviewOrMail = (Config, language: string) => {
+  i18n.locale = language || "en"; //defaults to en
+
+  Alert.alert(i18n.t("reviewOrMailTitle", { name: Config.name }), null, [
+    { text: i18n.t("yes"), onPress: () => storeReview() },
+    {
+      text: i18n.t("no"),
+      onPress: Config.email ? () => askMailFeedback(Config, language) : null
+    }
   ]);
+};
 
 export class ReviewBox extends React.Component<{
   appleID: string,
@@ -45,8 +88,13 @@ export class ReviewBox extends React.Component<{
   handleFeedback: () => void,
   showAlways: boolean,
   shouldShow: boolean,
-  language: Object
+  language: string
 }> {
+  componentDidMount() {
+    const { language } = this.props;
+    i18n.locale = language || "en"; //defaults to en
+  }
+
   handleReview() {
     const { appleID, androidPackage } = this.props;
 
@@ -82,7 +130,7 @@ export class ReviewBox extends React.Component<{
   }
 
   handleDismiss() {
-    Alert.alert("Okay, another time maybe.");
+    Alert.alert(i18n.t("box.otherTimeAlert"));
     this.props.setReviewed();
   }
 
@@ -100,7 +148,7 @@ export class ReviewBox extends React.Component<{
       >
         {!this.props.showAlways ? (
           <Text style={{ fontWeight: "600", fontSize: 20 }}>
-            You're up for review! 😁
+            {i18n.t("box.title")}
           </Text>
         ) : (
           undefined
@@ -114,11 +162,11 @@ export class ReviewBox extends React.Component<{
           }}
         >
           <View style={{ flex: 1 }}>
-            <Text>{language?.likeText || "Do you like the app?"}</Text>
+            <Text>{i18n.t("box.likeText")}</Text>
           </View>
           <View style={{ flex: 1 }}>
             <Button
-              title={language?.likeButton || "Write a review"}
+              title={i18n.t("box.likeButton")}
               onPress={() => this.handleReview()}
             />
           </View>
@@ -132,11 +180,11 @@ export class ReviewBox extends React.Component<{
           }}
         >
           <View style={{ flex: 1 }}>
-            <Text>{language?.improveText || "Can we improve something?"}</Text>
+            <Text>{i18n.t("box.improveText")}</Text>
           </View>
           <View style={{ flex: 1 }}>
             <Button
-              title={language?.improveButton || "Give feedback"}
+              title={i18n.t("box.improveButton")}
               onPress={() => this.handleFeedback()}
             />
           </View>
@@ -164,9 +212,10 @@ export class ReviewBox extends React.Component<{
 
 export class DefaultReviewBox extends React.Component {
   render() {
-    const { Config } = this.props;
+    const { Config, language } = this.props;
     return (
       <ReviewBox
+        language={language}
         appleID={Config.manifest.ios?.bundleIdentifier}
         androidPackage={Config.manifest.android?.package}
         setReviewed={() => null}
