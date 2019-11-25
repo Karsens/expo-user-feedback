@@ -1,6 +1,6 @@
 {
   "name": "expo-user-feedback",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Expo User-feedback alert flow and UI",
   "main": "index.js",
   "repository": "git@github.com:EAT-CODE-KITE-REPEAT/expo-user-feedback.git",
