@@ -5,6 +5,9 @@ import * as MailComposer from "expo-mail-composer";
 import * as StoreReview from "expo-store-review";
 
 import i18n from "i18n-js";
+
+import Button from "./pure.button";
+
 const en = {
   reviewOrMailTitle: "Do you enjoy {{name}}?",
   yes: "Yes",
@@ -42,15 +45,6 @@ const nl = {
 i18n.fallbacks = true;
 i18n.translations = { en, nl };
 
-import Button from "./pure.button";
-
-const storeReview = async () => {
-  console.log("Request review");
-  const result = await StoreReview.requestReview();
-
-  console.log("result", result);
-};
-
 const askMailFeedback = ({ name, email }, language: string) => {
   Alert.alert(i18n.t("giveFeedback"), i18n.t("giveFeedbackText", { name }), [
     {
@@ -73,7 +67,7 @@ export const reviewOrMail = (Config, language: string) => {
   i18n.locale = language || "en"; //defaults to en
 
   Alert.alert(i18n.t("reviewOrMailTitle", { name: Config.name }), null, [
-    { text: i18n.t("yes"), onPress: () => storeReview() },
+    { text: i18n.t("yes"), onPress: () => StoreReview.requestReview() },
     {
       text: i18n.t("no"),
       onPress: Config.email ? () => askMailFeedback(Config, language) : null
@@ -90,8 +84,10 @@ export class ReviewBox extends React.Component<{
   shouldShow: boolean,
   language: string
 }> {
-  componentDidMount() {
-    const { language } = this.props;
+  constructor(props) {
+    super(props);
+    const { language } = props;
+
     i18n.locale = language || "en"; //defaults to en
   }
 
